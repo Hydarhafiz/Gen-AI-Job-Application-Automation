@@ -25,14 +25,14 @@ const UserForm: React.FC = () => {
     skills: Skill[];
     projects: Project[];
   }>({
-    personalInfo: { // This is the corrected initial value, an object not an array
-      fullName: '',
+    personalInfo: {
+      name: '',
       email: '',
-      phone: '',
+      phone_number: '',
       location: '',
-      linkedinUrl: '',
-      personalWebsiteUrl: '',
-      professionalSummary: '',
+      linkedin_url: '',
+      personal_website_url: '',
+      professional_summary: '',
     },
     experience: [],
     education: [],

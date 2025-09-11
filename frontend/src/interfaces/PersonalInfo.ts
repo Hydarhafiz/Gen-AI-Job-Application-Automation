@@ -1,13 +1,13 @@
-// In frontend/src/interfaces/personalInfo.ts
+// In frontend/src/interfaces/PersonalInfo.ts
 
 export interface PersonalInfo {
-  fullName: string;
+  name: string;
   email: string;
-  phone: string;
+  phone_number: string;
   location: string;
-  linkedinUrl: string;
-  personalWebsiteUrl: string;
-  professionalSummary: string;
+  linkedin_url: string;
+  personal_website_url: string;
+  professional_summary: string;
 }
 
 export interface PersonalInfoFormProps {

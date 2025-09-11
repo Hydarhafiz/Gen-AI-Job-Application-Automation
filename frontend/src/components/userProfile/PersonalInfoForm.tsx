@@ -15,14 +15,14 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, setFormDa
       <h3 className="text-xl font-semibold text-gray-700 mb-4">Personal Information</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="flex flex-col">
-          <label htmlFor="fullName" className="text-gray-600 font-medium mb-1">
+          <label htmlFor="name" className="text-gray-600 font-medium mb-1">
             Full Name <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
-            id="fullName"
-            name="fullName"
-            value={formData.fullName}
+            id="name"
+            name="name"
+            value={formData.name}
             onChange={handleChange}
             placeholder="John Doe"
             className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -43,14 +43,14 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, setFormDa
           />
         </div>
         <div className="flex flex-col">
-          <label htmlFor="phone" className="text-gray-600 font-medium mb-1">
+          <label htmlFor="phone_number" className="text-gray-600 font-medium mb-1">
             Phone
           </label>
           <input
             type="tel"
-            id="phone"
-            name="phone"
-            value={formData.phone}
+            id="phone_number"
+            name="phone_number"
+            value={formData.phone_number}
             onChange={handleChange}
             placeholder="+1 (555) 123-4567"
             className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -71,28 +71,28 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, setFormDa
           />
         </div>
         <div className="flex flex-col">
-          <label htmlFor="linkedinUrl" className="text-gray-600 font-medium mb-1">
+          <label htmlFor="linkedin_url" className="text-gray-600 font-medium mb-1">
             LinkedIn Profile
           </label>
           <input
             type="url"
-            id="linkedinUrl"
-            name="linkedinUrl"
-            value={formData.linkedinUrl}
+            id="linkedin_url"
+            name="linkedin_url"
+            value={formData.linkedin_url}
             onChange={handleChange}
             placeholder="https://linkedin.com/in/johndoe"
             className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
         <div className="flex flex-col">
-          <label htmlFor="personalWebsiteUrl" className="text-gray-600 font-medium mb-1">
+          <label htmlFor="personal_website_url" className="text-gray-600 font-medium mb-1">
             Portfolio Website
           </label>
           <input
             type="url"
-            id="personalWebsiteUrl"
-            name="personalWebsiteUrl"
-            value={formData.personalWebsiteUrl}
+            id="personal_website_url"
+            name="personal_website_url"
+            value={formData.personal_website_url}
             onChange={handleChange}
             placeholder="https://johndoe.dev"
             className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -100,20 +100,20 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, setFormDa
         </div>
       </div>
       <div className="flex flex-col mt-6">
-        <label htmlFor="professionalSummary" className="text-gray-600 font-medium mb-1">
+        <label htmlFor="professional_summary" className="text-gray-600 font-medium mb-1">
           Professional Summary
         </label>
         <textarea
-          id="professionalSummary"
-          name="professionalSummary"
-          value={formData.professionalSummary}
+          id="professional_summary"
+          name="professional_summary"
+          value={formData.professional_summary}
           onChange={handleChange}
           placeholder="Brief summary of your professional background and career objectives..."
           rows={6}
           className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <p className="text-right text-sm text-gray-400 mt-1">
-          {formData.professionalSummary.length}/500 characters
+          {formData.professional_summary.length}/500 characters
         </p>
       </div>
     </div>
