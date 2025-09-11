@@ -4,4 +4,4 @@ from .application import ApplicationCreate, ApplicationInDB
 from .educations import EducationBase, EducationInDB
 from .projects import ProjectBase, ProjectInDB
 from .skills import SkillBase, SkillInDB
-from .job_postings import JobPostingBase, JobPostingInDB
+from .job_postings import JobPostingBase, JobPostingCreate, JobPostingInDB, JobScrapeRequest

@@ -14,8 +14,15 @@ class JobPostingBase(BaseModel):
     requirements: Optional[str] = None
     applied_at: Optional[datetime] = None
 
+class JobPostingCreate(JobPostingBase):
+    pass
+
 class JobPostingInDB(JobPostingBase):
     id: int
 
     class Config:
         orm_mode = True
+        
+class JobScrapeRequest(BaseModel):
+    url: HttpUrl
+    user_id: uuid.UUID
