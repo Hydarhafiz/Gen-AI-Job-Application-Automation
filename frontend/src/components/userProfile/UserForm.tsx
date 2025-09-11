@@ -1,7 +1,7 @@
 // In frontend/src/components/userProfile/UserForm.tsx
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faBriefcase, faGraduationCap, faList, faProjectDiagram, faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faBriefcase, faGraduationCap, faList, faProjectDiagram, faArrowLeft, faArrowRight, faSave } from '@fortawesome/free-solid-svg-icons';
 import PersonalInfoForm from './PersonalInfoForm.tsx';
 import ExperienceForm from './ExperienceForm.tsx';
 import EducationForm from './EducationForm.tsx';
@@ -12,14 +12,13 @@ import type { Education } from '../../interfaces/Education.ts';
 import type { Skill } from '../../interfaces/Skill.ts';
 import type { Project } from '../../interfaces/Project.ts';
 import type { PersonalInfo } from '../../interfaces/PersonalInfo.ts';
+import { submitProfileData } from '../../services/api.ts';
 
 
 const UserForm: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
-
-  // Corrected useState initialization with explicit types
   const [formData, setFormData] = useState<{
-    personalInfo: PersonalInfo; // We can use 'any' for now or define a PersonalInfo interface
+    personalInfo: PersonalInfo;
     experience: Experience[];
     education: Education[];
     skills: Skill[];
@@ -57,6 +56,23 @@ const UserForm: React.FC = () => {
   const handlePrevious = () => {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const handleSubmit = async () => {
+    try {
+      await submitProfileData(
+        formData.personalInfo,
+        formData.experience,
+        formData.education,
+        formData.skills,
+        formData.projects
+      );
+      alert('Profile created successfully!');
+      // TODO: Add a redirect or state change after successful submission
+    } catch (error) {
+      console.error('Error submitting profile:', error);
+      alert('An error occurred. Please try again.');
     }
   };
 
@@ -152,18 +168,23 @@ const UserForm: React.FC = () => {
             <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
             Previous
           </button>
-          <button
-            onClick={handleNext}
-            className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-              currentStep === steps.length - 1
-                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                : 'bg-blue-600 text-white hover:bg-blue-700'
-            }`}
-            disabled={currentStep === steps.length - 1}
-          >
-            Next
-            <FontAwesomeIcon icon={faArrowRight} className="ml-2" />
-          </button>
+          {currentStep === steps.length - 1 ? (
+            <button
+              onClick={handleSubmit}
+              className="px-6 py-3 bg-green-600 text-white rounded-lg font-medium transition-colors hover:bg-green-700"
+            >
+              <FontAwesomeIcon icon={faSave} className="mr-2" />
+              Submit
+            </button>
+          ) : (
+            <button
+              onClick={handleNext}
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium transition-colors hover:bg-blue-700"
+            >
+              Next
+              <FontAwesomeIcon icon={faArrowRight} className="ml-2" />
+            </button>
+          )}
         </div>
       </div>
     </div>
