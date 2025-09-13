@@ -2,7 +2,6 @@
 from playwright.async_api import async_playwright
 from bs4 import BeautifulSoup
 import asyncio
-import re
 from typing import Optional, Dict
 import logging
 
@@ -10,17 +9,15 @@ logger = logging.getLogger(__name__)
 
 class LinkedInScraper:
     def __init__(self):
-        self.timeout = 60000  # Increase timeout to 60 seconds
+        self.timeout = 60000 # Increase timeout to 60 seconds
 
     async def scrape_job_posting(self, url: str) -> Optional[Dict]:
         """Scrape LinkedIn job posting details"""
-        # Check if this is a search results page or individual job page
         if "jobs/search" in url:
             logger.error("Please provide a direct link to a job posting, not a search results page")
             return None
-            
+        
         async with async_playwright() as p:
-            # Launch browser with additional arguments to appear more like a real user
             browser = await p.chromium.launch(
                 headless=True,
                 args=[
@@ -35,7 +32,6 @@ class LinkedInScraper:
                 ]
             )
             
-            # Create a new context with a realistic user agent
             context = await browser.new_context(
                 user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
                 viewport={'width': 1920, 'height': 1080},
@@ -48,7 +44,6 @@ class LinkedInScraper:
                 }
             )
             
-            # Block images and CSS to speed up loading
             await context.route("**/*.{png,jpg,jpeg,webp}", lambda route: route.abort())
             await context.route("**/*.css", lambda route: route.abort())
             
@@ -58,10 +53,8 @@ class LinkedInScraper:
                 logger.info(f"Navigating to URL: {url}")
                 await page.goto(url, timeout=self.timeout, wait_until='domcontentloaded')
                 
-                # Wait for the job title to appear as an indicator that the page has loaded
                 await page.wait_for_selector('h1, [data-test-job-details-title]', timeout=self.timeout)
                 
-                # Try multiple selectors for job description
                 description_selectors = [
                     '.jobs-description__content',
                     '.description__text',
@@ -79,17 +72,14 @@ class LinkedInScraper:
                 if not description_found:
                     logger.warning("No description selector found, trying to extract from page content")
                 
-                # Get page content
                 content = await page.content()
                 soup = BeautifulSoup(content, 'html.parser')
                 
-                # Extract job details with multiple fallback selectors
                 job_data = {
                     'title': self._extract_title(soup),
                     'company': self._extract_company(soup),
                     'location': self._extract_location(soup),
-                    'description': self._extract_description(soup),
-                    'requirements': self._extract_requirements(soup)
+                    'description': self._extract_description(soup)
                 }
                 
                 await browser.close()
@@ -97,7 +87,6 @@ class LinkedInScraper:
                 
             except Exception as e:
                 logger.error(f"Error scraping LinkedIn: {str(e)}")
-                # Try to get at least some content even if there's an error
                 try:
                     content = await page.content()
                     soup = BeautifulSoup(content, 'html.parser')
@@ -105,8 +94,7 @@ class LinkedInScraper:
                         'title': self._extract_title(soup),
                         'company': self._extract_company(soup),
                         'location': self._extract_location(soup),
-                        'description': self._extract_description(soup),
-                        'requirements': self._extract_requirements(soup)
+                        'description': self._extract_description(soup)
                     }
                     await browser.close()
                     return job_data
@@ -177,32 +165,3 @@ class LinkedInScraper:
             if elem:
                 return elem.get_text().strip()
         return ""
-
-    def _extract_requirements(self, soup: BeautifulSoup) -> str:
-        # Look for requirements section with multiple approaches
-        requirements = []
-        
-        # Method 1: Look for specific headings
-        headings = soup.find_all(['h2', 'h3', 'h4'])
-        requirement_keywords = ['requirement', 'qualification', 'skill', 'experience', 'what you', 'you have', 'must have']
-        
-        for heading in headings:
-            text = heading.get_text().lower()
-            if any(keyword in text for keyword in requirement_keywords):
-                # Get content after the heading
-                next_elem = heading.find_next()
-                while next_elem and next_elem.name not in ['h1', 'h2', 'h3', 'h4']:
-                    if next_elem.name in ['p', 'li', 'ul', 'ol']:
-                        requirements.append(next_elem.get_text().strip())
-                    next_elem = next_elem.find_next()
-        
-        # Method 2: Look for lists that might contain requirements
-        lists = soup.find_all(['ul', 'ol'])
-        for lst in lists:
-            list_text = lst.get_text().lower()
-            if any(keyword in list_text for keyword in requirement_keywords):
-                list_items = lst.find_all('li')
-                for item in list_items:
-                    requirements.append(item.get_text().strip())
-        
-        return "\n".join(requirements) if requirements else ""

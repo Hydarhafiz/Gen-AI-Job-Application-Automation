@@ -6,8 +6,8 @@ from ... import schemas, crud
 from ...db.database import get_db
 from ...scraping.linkedin_scraper import LinkedInScraper
 import logging
+from ...logging_config import api_logger  # Import the logger
 
-logger = logging.getLogger(__name__)
 router = APIRouter()
 
 @router.post("/scrape", response_model=schemas.JobPostingInDB)
@@ -19,15 +19,24 @@ async def scrape_job_posting(
     # Validate the URL
     url_str = str(scrape_request.url)
     if "jobs/search" in url_str:
+        api_logger.warning({"message": "Invalid scrape URL provided", "url": url_str})
         raise HTTPException(
             status_code=400,
             detail="Please provide a direct link to a job posting, not a search results page."
         )
     
     scraper = LinkedInScraper()
-    job_data = await scraper.scrape_job_posting(url_str)
+    try:
+        job_data = await scraper.scrape_job_posting(url_str)
+    except Exception as e:
+        api_logger.error({"message": "Scraping failed due to an exception", "url": url_str, "error": str(e)})
+        raise HTTPException(
+            status_code=500,
+            detail="An internal error occurred while scraping the job posting."
+        )
     
     if not job_data:
+        api_logger.warning({"message": "Scraping returned no data", "url": url_str})
         raise HTTPException(
             status_code=400,
             detail="Failed to scrape job posting. Please check that the URL is a valid LinkedIn job posting and try again."
