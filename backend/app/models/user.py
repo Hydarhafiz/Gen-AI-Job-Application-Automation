@@ -8,15 +8,16 @@ from .base import Base
 
 class User(Base):
     __tablename__ = "users"
-
+    
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
+    email = Column(String, unique=True, index=True, nullable=False)
+    password_hash = Column(String, nullable=False) # New field for storing the hashed password
     name = Column(String)
-    email = Column(String, unique=True)
     phone_number = Column(String)
     linkedin_url = Column(String)
     personal_website_url = Column(String)
     professional_summary = Column(Text)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.utcnow) 
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     experiences = relationship("Experience", back_populates="user")

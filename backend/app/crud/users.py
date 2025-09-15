@@ -2,15 +2,18 @@
 import uuid
 from sqlalchemy.orm import Session
 from .. import models, schemas
+from ..core.security import get_password_hash
 
 def get_user_by_email(db: Session, email: str):
     return db.query(models.User).filter(models.User.email == email).first()
 
 def create_user(db: Session, user: schemas.UserCreate):
-    # Convert Pydantic HttpUrl objects to strings before creating the SQLAlchemy model
+    # Hash the password before creating the user
+    hashed_password = get_password_hash(user.password)
     db_user = models.User(
-        name=user.name,
         email=user.email,
+        password_hash=hashed_password,
+        name=user.name,
         phone_number=user.phone_number,
         linkedin_url=str(user.linkedin_url) if user.linkedin_url else None,
         personal_website_url=str(user.personal_website_url) if user.personal_website_url else None,
@@ -19,7 +22,6 @@ def create_user(db: Session, user: schemas.UserCreate):
     db.add(db_user)
     db.flush() 
 
-    # Loop through and create the related items
     for exp in user.experiences:
         db_exp = models.Experience(**exp.dict(), user_id=db_user.id)
         db.add(db_exp)
@@ -29,7 +31,6 @@ def create_user(db: Session, user: schemas.UserCreate):
         db.add(db_edu)
 
     for proj in user.projects:
-        # Convert HttpUrl fields to string for projects as well
         db_proj = models.Project(
             user_id=db_user.id,
             name=proj.name,
@@ -47,9 +48,12 @@ def create_user(db: Session, user: schemas.UserCreate):
     db.refresh(db_user)
     return db_user
 
-
 def get_user(db: Session, user_id: uuid.UUID):
     return db.query(models.User).filter(models.User.id == user_id).first()
 
 def get_users(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.User).offset(skip).limit(limit).all()
+
+# New function for authentication
+def get_user_by_email_with_password(db: Session, email: str):
+    return db.query(models.User).filter(models.User.email == email).first()
