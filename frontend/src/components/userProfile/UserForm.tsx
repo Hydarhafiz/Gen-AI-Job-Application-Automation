@@ -1,4 +1,5 @@
 // In frontend/src/components/userProfile/UserForm.tsx
+
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faBriefcase, faGraduationCap, faList, faProjectDiagram, faArrowLeft, faArrowRight, faSave } from '@fortawesome/free-solid-svg-icons';
@@ -14,8 +15,11 @@ import type { Project } from '../../interfaces/Project.ts';
 import type { PersonalInfo } from '../../interfaces/PersonalInfo.ts';
 import { submitProfileData } from '../../services/api.ts';
 
+interface UserFormProps {
+  onSuccess: () => void;
+}
 
-const UserForm: React.FC = () => {
+const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<{
     personalInfo: PersonalInfo;
@@ -27,6 +31,7 @@ const UserForm: React.FC = () => {
     personalInfo: {
       name: '',
       email: '',
+      password: '', // Initialize password
       phone_number: '',
       location: '',
       linkedin_url: '',
@@ -38,6 +43,9 @@ const UserForm: React.FC = () => {
     skills: [],
     projects: [],
   });
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [validationError, setValidationError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const steps = [
     { name: 'Personal Info', icon: faUser },
@@ -48,6 +56,14 @@ const UserForm: React.FC = () => {
   ];
 
   const handleNext = () => {
+    // Only validate password on the Personal Info step
+    if (currentStep === 0) {
+      if (formData.personalInfo.password !== confirmPassword) {
+        setValidationError('Passwords do not match.');
+        return;
+      }
+      setValidationError('');
+    }
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     }
@@ -60,6 +76,13 @@ const UserForm: React.FC = () => {
   };
 
   const handleSubmit = async () => {
+    if (formData.personalInfo.password !== confirmPassword) {
+      setValidationError('Passwords do not match.');
+      return;
+    }
+    setValidationError('');
+    setLoading(true);
+
     try {
       await submitProfileData(
         formData.personalInfo,
@@ -69,10 +92,12 @@ const UserForm: React.FC = () => {
         formData.projects
       );
       alert('Profile created successfully!');
-      // TODO: Add a redirect or state change after successful submission
+      onSuccess(); // Call the callback to navigate back to the home page
     } catch (error) {
       console.error('Error submitting profile:', error);
       alert('An error occurred. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -83,6 +108,9 @@ const UserForm: React.FC = () => {
           <PersonalInfoForm
             formData={formData.personalInfo}
             setFormData={(data) => setFormData({ ...formData, personalInfo: data })}
+            confirmPassword={confirmPassword}
+            setConfirmPassword={setConfirmPassword}
+            validationError={validationError}
           />
         );
       case 1:
@@ -153,6 +181,9 @@ const UserForm: React.FC = () => {
 
         {/* Form Content */}
         {renderStep()}
+        {validationError && (
+          <div className="text-red-500 text-center mt-4">{validationError}</div>
+        )}
 
         {/* Navigation Buttons */}
         <div className="flex justify-between mt-8">
@@ -163,7 +194,7 @@ const UserForm: React.FC = () => {
                 ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                 : 'bg-blue-600 text-white hover:bg-blue-700'
             }`}
-            disabled={currentStep === 0}
+            disabled={currentStep === 0 || loading}
           >
             <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
             Previous
@@ -172,14 +203,16 @@ const UserForm: React.FC = () => {
             <button
               onClick={handleSubmit}
               className="px-6 py-3 bg-green-600 text-white rounded-lg font-medium transition-colors hover:bg-green-700"
+              disabled={loading}
             >
-              <FontAwesomeIcon icon={faSave} className="mr-2" />
-              Submit
+              {loading ? 'Submitting...' : 'Submit'}
+              <FontAwesomeIcon icon={faSave} className="ml-2" />
             </button>
           ) : (
             <button
               onClick={handleNext}
               className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium transition-colors hover:bg-blue-700"
+              disabled={loading}
             >
               Next
               <FontAwesomeIcon icon={faArrowRight} className="ml-2" />

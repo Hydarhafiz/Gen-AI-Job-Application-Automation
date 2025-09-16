@@ -58,6 +58,7 @@ class UserBase(BaseModel):
     name: str
     email: EmailStr
     phone_number: Optional[str] = None
+    location: Optional[str] = None # Add this line
     linkedin_url: Optional[HttpUrl] = None
     personal_website_url: Optional[HttpUrl] = None
     professional_summary: Optional[str] = None

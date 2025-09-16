@@ -1,4 +1,5 @@
 # In backend/app/models/user.py
+
 from datetime import datetime
 import uuid
 from sqlalchemy import Column, String, Text, DateTime
@@ -14,6 +15,7 @@ class User(Base):
     password_hash = Column(String, nullable=False) # New field for storing the hashed password
     name = Column(String)
     phone_number = Column(String)
+    location = Column(String) # Add this line
     linkedin_url = Column(String)
     personal_website_url = Column(String)
     professional_summary = Column(Text)

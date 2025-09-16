@@ -1,13 +1,15 @@
 // In frontend/src/pages/Home.tsx
+
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faUserPlus } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faUserPlus, faArrowRightToBracket } from '@fortawesome/free-solid-svg-icons';
 
 interface HomePageProps {
   onCreateProfileClick: () => void;
+  onLoginClick: () => void;
 }
 
-const HomePage: React.FC<HomePageProps> = ({ onCreateProfileClick }) => {
+const HomePage: React.FC<HomePageProps> = ({ onCreateProfileClick, onLoginClick }) => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
       <div className="flex flex-col items-center mb-8">
@@ -27,13 +29,16 @@ const HomePage: React.FC<HomePageProps> = ({ onCreateProfileClick }) => {
           Do you have an existing profile or would you like to create a new one?
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="flex flex-col items-center justify-center p-6 border border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+          <div
+            className="flex flex-col items-center justify-center p-6 border border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 transition-colors"
+            onClick={onLoginClick}
+          >
             <div className="text-3xl text-green-500 mb-4">
-              <FontAwesomeIcon icon={faUser} />
+              <FontAwesomeIcon icon={faArrowRightToBracket} />
             </div>
-            <h3 className="text-lg font-medium text-gray-800">Use Existing Profile</h3>
+            <h3 className="text-lg font-medium text-gray-800">Login</h3>
             <p className="text-sm text-gray-500 text-center mt-1">
-              Continue with your saved profile data
+              Access your saved profile data
             </p>
           </div>
           <div

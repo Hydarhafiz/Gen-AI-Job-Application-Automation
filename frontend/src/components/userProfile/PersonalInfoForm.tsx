@@ -1,12 +1,26 @@
 // In frontend/src/components/userProfile/PersonalInfoForm.tsx
+
 import React from 'react';
 import type { PersonalInfoFormProps } from '../../interfaces/PersonalInfo';
 
-const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, setFormData }) => {
+interface CustomPersonalInfoFormProps extends PersonalInfoFormProps {
+  confirmPassword: string;
+  setConfirmPassword: (password: string) => void;
+  validationError: string;
+}
+
+const PersonalInfoForm: React.FC<CustomPersonalInfoFormProps> = ({
+  formData,
+  setFormData,
+  confirmPassword,
+  setConfirmPassword,
+  validationError,
+}) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
   };
 
@@ -26,6 +40,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, setFormDa
             onChange={handleChange}
             placeholder="John Doe"
             className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
           />
         </div>
         <div className="flex flex-col">
@@ -40,6 +55,37 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, setFormDa
             onChange={handleChange}
             placeholder="john@example.com"
             className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+        <div className="flex flex-col">
+          <label htmlFor="password" className="text-gray-600 font-medium mb-1">
+            Password <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            placeholder="Choose a strong password"
+            className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+        <div className="flex flex-col">
+          <label htmlFor="confirmPassword" className="text-gray-600 font-medium mb-1">
+            Confirm Password <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="password"
+            id="confirmPassword"
+            name="confirmPassword"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="Re-enter your password"
+            className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
           />
         </div>
         <div className="flex flex-col">
