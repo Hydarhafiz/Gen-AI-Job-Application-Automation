@@ -12,7 +12,6 @@ class JobPosting(Base):
     company_name = Column(String)
     location = Column(String)
     job_description = Column(Text)
-    requirements = Column(Text)
     applied_at = Column(DateTime)
     user = relationship("User", back_populates="job_postings")
     applications = relationship("Application", back_populates="job_posting")

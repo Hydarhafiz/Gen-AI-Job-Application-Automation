@@ -11,7 +11,6 @@ class JobPostingBase(BaseModel):
     company_name: Optional[str] = None
     location: Optional[str] = None
     job_description: Optional[str] = None
-    requirements: Optional[str] = None
     applied_at: Optional[datetime] = None
 
 class JobPostingCreate(JobPostingBase):

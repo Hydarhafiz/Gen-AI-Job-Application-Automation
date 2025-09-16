@@ -10,7 +10,6 @@ def create_job_posting(db: Session, job_posting: schemas.JobPostingCreate):
         company_name=job_posting.company_name,
         location=job_posting.location,
         job_description=job_posting.job_description,
-        requirements=job_posting.requirements
     )
     db.add(db_job_posting)
     db.commit()

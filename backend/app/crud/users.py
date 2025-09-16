@@ -15,6 +15,7 @@ def create_user(db: Session, user: schemas.UserCreate):
         password_hash=hashed_password,
         name=user.name,
         phone_number=user.phone_number,
+        location=user.location,
         linkedin_url=str(user.linkedin_url) if user.linkedin_url else None,
         personal_website_url=str(user.personal_website_url) if user.personal_website_url else None,
         professional_summary=user.professional_summary
