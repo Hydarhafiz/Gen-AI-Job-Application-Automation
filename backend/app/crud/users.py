@@ -1,6 +1,7 @@
 # In backend/app/crud/users.py
+
 import uuid
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from .. import models, schemas
 from ..core.security import get_password_hash
 
@@ -51,6 +52,19 @@ def create_user(db: Session, user: schemas.UserCreate):
 
 def get_user(db: Session, user_id: uuid.UUID):
     return db.query(models.User).filter(models.User.id == user_id).first()
+
+def get_user_with_relations(db: Session, user_id: uuid.UUID):
+    return (
+        db.query(models.User)
+        .filter(models.User.id == user_id)
+        .options(
+            joinedload(models.User.experiences),
+            joinedload(models.User.educations),
+            joinedload(models.User.skills),
+            joinedload(models.User.projects)
+        )
+        .first()
+    )
 
 def get_users(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.User).offset(skip).limit(limit).all()

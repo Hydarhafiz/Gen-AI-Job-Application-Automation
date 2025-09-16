@@ -20,8 +20,11 @@ class JobPostingInDB(JobPostingBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True # Change this from orm_mode = True
         
 class JobScrapeRequest(BaseModel):
     url: HttpUrl
-    user_id: uuid.UUID
+    
+class JobPosting(JobPostingInDB):
+    class Config:
+        from_attributes = True

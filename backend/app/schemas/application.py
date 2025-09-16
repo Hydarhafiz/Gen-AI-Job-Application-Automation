@@ -1,6 +1,7 @@
 # In backend/app/schemas/application.py
+
 from datetime import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel, HttpUrl
 import uuid
 
 class ApplicationBase(BaseModel):
@@ -18,4 +19,7 @@ class ApplicationInDB(ApplicationBase):
     generated_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True # Change this from orm_mode = True
+
+class CoverLetterRequest(BaseModel):
+    job_url: str

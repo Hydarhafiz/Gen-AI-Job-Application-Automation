@@ -1,7 +1,7 @@
 # In backend/app/schemas/__init__.py
 from .user import UserBase, UserCreate, UserUpdate, UserInDB, User, Token
-from .application import ApplicationCreate, ApplicationInDB
+from .application import ApplicationCreate, ApplicationInDB, CoverLetterRequest
 from .educations import EducationBase, EducationInDB
 from .projects import ProjectBase, ProjectInDB
 from .skills import SkillBase, SkillInDB
-from .job_postings import JobPostingBase, JobPostingCreate, JobPostingInDB, JobScrapeRequest
+from .job_postings import JobPostingBase, JobPostingCreate, JobPostingInDB, JobScrapeRequest, JobPosting

@@ -1,16 +1,20 @@
 # In backend/app/api/endpoints/auth.py
+
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from datetime import timedelta
 from ... import schemas, crud
 from ...db.database import get_db
-from ...core.security import create_access_token, authenticate_user
+from ...core.security import create_access_token, authenticate_user, decode_access_token
 from ...core.config import settings
 import logging
 from ...logging_config import api_logger
 
 router = APIRouter()
+
+# Declare the oauth2_scheme so it can be used in other files.
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
 
 @router.post("/signup", response_model=schemas.User, status_code=status.HTTP_201_CREATED)
 def signup(user_data: schemas.UserCreate, db: Session = Depends(get_db)):
@@ -41,3 +45,20 @@ def login_for_access_token(
         data={"sub": str(user.id)}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    payload = decode_access_token(token)
+    if payload is None or "sub" not in payload:
+        raise credentials_exception
+    user_id = payload.get("sub")
+    if user_id is None:
+        raise credentials_exception
+    user = crud.users.get_user(db, user_id=user_id)
+    if user is None:
+        raise credentials_exception
+    return user

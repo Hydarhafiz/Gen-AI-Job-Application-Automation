@@ -1,23 +1,25 @@
 # In backend/app/api/endpoints/users.py
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session, joinedload
-from ... import schemas, crud, models
+from sqlalchemy.orm import Session
+from ... import schemas, crud
 from ...db.database import get_db
+from ..endpoints.auth import get_current_user # <-- Import the dependency
+from ...models.user import User as UserModel # <-- Import the User model
 
 router = APIRouter()
 
-@router.get("/{user_id}/profile", response_model=schemas.User)
-def read_user_profile(user_id: uuid.UUID, db: Session = Depends(get_db)):
-    db_user = db.query(models.User).options(
-        joinedload(models.User.experiences),
-        joinedload(models.User.educations),
-        joinedload(models.User.projects),
-        joinedload(models.User.skills),
-        joinedload(models.User.job_postings),
-        joinedload(models.User.applications)
-    ).filter(models.User.id == user_id).first()
-
+@router.get("/profile", response_model=schemas.User)
+def read_user_profile(
+    current_user: UserModel = Depends(get_current_user), # <-- Inject the dependency
+    db: Session = Depends(get_db)
+):
+    """
+    Retrieve the authenticated user's full profile.
+    """
+    # Use the ID from the authenticated user to fetch the profile
+    db_user = crud.users.get_user_with_relations(db, user_id=current_user.id)
+    
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
 

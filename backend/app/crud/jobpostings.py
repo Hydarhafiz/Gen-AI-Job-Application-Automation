@@ -1,4 +1,5 @@
-# backend/app/crud/jobpostings.py
+# In backend/app/crud/jobpostings.py
+
 from sqlalchemy.orm import Session
 from .. import models, schemas
 
@@ -18,3 +19,6 @@ def create_job_posting(db: Session, job_posting: schemas.JobPostingCreate):
 
 def get_job_posting(db: Session, job_posting_id: int):
     return db.query(models.JobPosting).filter(models.JobPosting.id == job_posting_id).first()
+
+def get_job_posting_by_url(db: Session, url: str):
+    return db.query(models.JobPosting).filter(models.JobPosting.url == url).first()

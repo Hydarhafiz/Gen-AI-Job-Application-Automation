@@ -7,15 +7,18 @@ from ...db.database import get_db
 from ...scraping.linkedin_scraper import LinkedInScraper
 import logging
 from ...logging_config import api_logger  # Import the logger
+from ..endpoints.auth import get_current_user # Import the authentication dependency
+from ...models.user import User as UserModel
 
 router = APIRouter()
 
 @router.post("/scrape", response_model=schemas.JobPostingInDB)
 async def scrape_job_posting(
     scrape_request: schemas.JobScrapeRequest,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: UserModel = Depends(get_current_user) # Add the authentication dependency
 ):
-    """Scrape job posting from LinkedIn URL"""
+    """Scrape job posting from LinkedIn URL for the authenticated user"""
     # Validate the URL
     url_str = str(scrape_request.url)
     if "jobs/search" in url_str:
@@ -42,15 +45,14 @@ async def scrape_job_posting(
             detail="Failed to scrape job posting. Please check that the URL is a valid LinkedIn job posting and try again."
         )
     
-    # Create job posting in database
+    # Create job posting in database using the authenticated user's ID
     job_posting = schemas.JobPostingCreate(
-        user_id=scrape_request.user_id,
+        user_id=current_user.id,  # Use the ID from the authenticated user
         url=scrape_request.url,
         job_title=job_data.get('title', ''),
         company_name=job_data.get('company', ''),
         location=job_data.get('location', ''),
         job_description=job_data.get('description', ''),
-        requirements=job_data.get('requirements', '')
     )
     
     return crud.jobpostings.create_job_posting(db=db, job_posting=job_posting)
