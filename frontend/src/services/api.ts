@@ -80,3 +80,27 @@ export const loginUser = async (email: string, password: string): Promise<string
   const data = await response.json();
   return data.access_token;
 };
+
+/**
+ * Scrapes a job posting from a LinkedIn URL.
+ * @param userId The ID of the current user.
+ * @param url The LinkedIn job posting URL.
+ * @returns A Promise that resolves with the scraped job data.
+ */
+export const scrapeJob = async (userId: string, url: string): Promise<any> => {
+  const response = await fetch(`${BASE_URL}/jobpostings/scrape`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ user_id: userId, url }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || 'Scraping failed.');
+  }
+
+  const data = await response.json();
+  return data;
+};

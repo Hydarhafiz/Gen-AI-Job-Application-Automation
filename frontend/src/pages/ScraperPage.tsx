@@ -1,5 +1,8 @@
 // In frontend/src/pages/ScraperPage.tsx
+
 import React, { useState } from 'react';
+import { scrapeJob } from '../services/api';
+import { getUserIdFromToken } from '../utils/token'; // Import the utility function
 
 const ScraperPage: React.FC = () => {
   const [url, setUrl] = useState('');
@@ -13,23 +16,23 @@ const ScraperPage: React.FC = () => {
       return;
     }
 
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      setError('You must be logged in to use this feature.');
+      return;
+    }
+
+    const userId = getUserIdFromToken(token);
+    if (!userId) {
+      setError('Could not get user ID from token. Please log in again.');
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     
     try {
-      const response = await fetch('http://localhost:8000/api/scrape', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ url }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Scraping failed: ${response.statusText}`);
-      }
-
-      const data = await response.json();
+      const data = await scrapeJob(userId, url);
       setScrapedData(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
@@ -83,25 +86,37 @@ const ScraperPage: React.FC = () => {
               
               <div>
                 <h3 className="text-sm font-medium text-gray-500">Company</h3>
-                <p className="mt-1 text-lg text-gray-900">{scrapedData.company || 'N/A'}</p>
+                <p className="mt-1 text-lg text-gray-900">{scrapedData.company_name || 'N/A'}</p>
+              </div>
+              
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Location</h3>
+                <p className="mt-1 text-lg text-gray-900">{scrapedData.location || 'N/A'}</p>
               </div>
               
               <div>
                 <h3 className="text-sm font-medium text-gray-500">Description</h3>
                 <div className="mt-1 p-4 bg-gray-50 rounded-md">
-                  <p className="text-gray-700 whitespace-pre-wrap">{scrapedData.description || 'N/A'}</p>
+                  <p className="text-gray-700 whitespace-pre-wrap">{scrapedData.job_description || 'N/A'}</p>
                 </div>
               </div>
               
               <div>
+                <h3 className="text-sm font-medium text-gray-500">Requirements</h3>
+                <div className="mt-1 p-4 bg-gray-50 rounded-md">
+                  <p className="text-gray-700 whitespace-pre-wrap">{scrapedData.requirements || 'N/A'}</p>
+                </div>
+              </div>
+
+              <div>
                 <h3 className="text-sm font-medium text-gray-500">Source URL</h3>
                 <a 
-                  href={scrapedData.source_url} 
+                  href={scrapedData.url} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="mt-1 text-blue-600 hover:text-blue-800 break-words"
                 >
-                  {scrapedData.source_url}
+                  {scrapedData.url}
                 </a>
               </div>
             </div>
