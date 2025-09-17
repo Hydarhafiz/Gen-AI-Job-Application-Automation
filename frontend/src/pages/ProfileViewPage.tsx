@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getProfile } from '../services/api';
 import type { UserProfile } from '../interfaces/UserProfile';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Header from '../common/Header';
-
 
 const ProfileViewPage: React.FC = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -134,7 +133,7 @@ const ProfileViewPage: React.FC = () => {
             ) : <p>No skills listed.</p>}
           </div>
 
-          <div>
+          <div className="mb-6">
             <h2 className="text-xl font-semibold text-gray-700 mb-4">Projects</h2>
             {profile.projects.length > 0 ? profile.projects.map((project, index) => (
               <div key={index} className="bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200">
@@ -143,6 +142,30 @@ const ProfileViewPage: React.FC = () => {
                 <p className="mt-2 text-gray-700 whitespace-pre-wrap">{project.description || 'N/A'}</p>
               </div>
             )) : <p>No projects listed.</p>}
+          </div>
+          
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold text-gray-700 mb-4">Scraped Jobs & Documents</h2>
+            {profile.job_postings.length > 0 ? profile.job_postings.map((job, index) => (
+              <div key={index} className="bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200">
+                <h3 className="text-lg font-bold">{job.job_title} at {job.company_name}</h3>
+                <p className="text-gray-600 text-sm mb-2">{job.location}</p>
+                <a href={job.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm block mb-4">
+                  View Job Posting
+                </a>
+                <p className="text-gray-700 mt-2">
+                  <strong>Job Description:</strong> {job.job_description?.substring(0, 300) || 'No description available.'}...
+                </p>
+                
+                {/* Button to navigate to details page */}
+                <Link to={`/jobs/${job.id}`}>
+                  <button className="mt-4 px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                    View Details & Documents
+                  </button>
+                </Link>
+                
+              </div>
+            )) : <p>No scraped jobs listed.</p>}
           </div>
         </div>
       </div>
