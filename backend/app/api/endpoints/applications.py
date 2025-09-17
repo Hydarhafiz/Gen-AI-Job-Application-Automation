@@ -50,15 +50,15 @@ def extract_text_from_nested_dict(data: Dict[str, Any]) -> str:
                     extracted_strings.append(extract_text_from_nested_dict(item))
     return "\n\n".join(extracted_strings)
 
-@router.post("/generate", status_code=status.HTTP_200_OK)
+@router.post("/generate", response_model=schemas.ApplicationCreate, status_code=status.HTTP_200_OK)
 def generate_application(
     job_posting_id: int,
     db: Session = Depends(get_db),
     current_user: UserModel = Depends(get_current_user)
 ):
     """
-    Generates a tailored resume and cover letter for a specific job posting
-    based on the authenticated user's profile.
+    Generates a tailored resume and cover letter for a specific job posting,
+    saves it, and returns the generated content.
     """
     # 1. Retrieve the authenticated user's profile with all relationships
     user_with_relations = crud.users.get_user_with_relations(db, user_id=current_user.id)
@@ -82,7 +82,7 @@ def generate_application(
     try:
         generated_data = generate_resume_and_cover_letter(user_data, job_data)
         
-        # 5. Extract text and save to the database
+        # 5. Extract text and create the application schema
         resume_text = generated_data.get("resume", "")
         if isinstance(resume_text, dict):
             resume_text = extract_text_from_nested_dict(resume_text)
@@ -101,11 +101,14 @@ def generate_application(
             generated_email_template=email_template_text
         )
         
-        created_application = crud.applications.create_application(
+        # 6. Save to the database
+        crud.applications.create_application(
             db=db,
             application=application_create_schema
         )
-        return {"message": "Application generated and saved successfully."}
+        
+        # 7. Return the generated content to the frontend
+        return application_create_schema
 
     except json.JSONDecodeError as e:
         api_logger.error({"message": "LLM response was not valid JSON", "error": str(e)}, exc_info=True)

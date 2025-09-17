@@ -1,16 +1,18 @@
 // In frontend/src/pages/ScraperPage.tsx
 
 import React, { useState } from 'react';
-import { scrapeJob } from '../services/api';
-import { getUserIdFromToken } from '../utils/token'; // Import the utility function
+import { scrapeJob, generateApplication } from '../services/api';
+import type { JobPosting } from '../interfaces/JobPosting'; // You might need to create this interface
+import type { ApplicationContent } from '../interfaces/ApplicationContent';
 
 const ScraperPage: React.FC = () => {
   const [url, setUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [scrapedData, setScrapedData] = useState<any>(null);
+  const [scrapedData, setScrapedData] = useState<JobPosting | null>(null);
+  const [generatedContent, setGeneratedContent] = useState<ApplicationContent | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const handleScrape = async () => {
+  const handleGenerate = async () => {
     if (!url) {
       setError('Please enter a LinkedIn job URL');
       return;
@@ -22,18 +24,20 @@ const ScraperPage: React.FC = () => {
       return;
     }
 
-    const userId = getUserIdFromToken(token);
-    if (!userId) {
-      setError('Could not get user ID from token. Please log in again.');
-      return;
-    }
-
     setIsLoading(true);
     setError(null);
+    setScrapedData(null);
+    setGeneratedContent(null);
     
     try {
-      const data = await scrapeJob(userId, url);
-      setScrapedData(data);
+      // Step 1: Scrape the job posting
+      const scrapedJob = await scrapeJob(token, url);
+      setScrapedData(scrapedJob);
+
+      // Step 2: Trigger the application generation
+      const generated = await generateApplication(token, scrapedJob.id);
+      setGeneratedContent(generated);
+
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
     } finally {
@@ -41,12 +45,21 @@ const ScraperPage: React.FC = () => {
     }
   };
 
+  const renderContent = (title: string, content: string | null) => (
+    <div className="bg-white shadow rounded-lg p-6 mb-4">
+      <h2 className="text-xl font-semibold text-gray-800 mb-4">{title}</h2>
+      <div className="mt-1 p-4 bg-gray-50 rounded-md">
+        <p className="text-gray-700 whitespace-pre-wrap">{content || 'N/A'}</p>
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">LinkedIn Job Scraper</h1>
-          <p className="text-gray-600">Paste a LinkedIn job URL to extract the job details</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Generate Your Application</h1>
+          <p className="text-gray-600">Paste a LinkedIn job URL to automatically generate your application materials.</p>
         </div>
 
         <div className="bg-white shadow rounded-lg p-6 mb-8">
@@ -59,11 +72,11 @@ const ScraperPage: React.FC = () => {
               className="flex-grow px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
             />
             <button
-              onClick={handleScrape}
+              onClick={handleGenerate}
               disabled={isLoading}
               className="px-6 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
             >
-              {isLoading ? 'Scraping...' : 'Scrape Job'}
+              {isLoading ? 'Generating...' : 'Generate Application'}
             </button>
           </div>
           
@@ -74,52 +87,12 @@ const ScraperPage: React.FC = () => {
           )}
         </div>
 
-        {scrapedData && (
+        {generatedContent && (
           <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Scraped Job Data</h2>
-            
-            <div className="grid grid-cols-1 gap-4">
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Job Title</h3>
-                <p className="mt-1 text-lg text-gray-900">{scrapedData.job_title || 'N/A'}</p>
-              </div>
-              
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Company</h3>
-                <p className="mt-1 text-lg text-gray-900">{scrapedData.company_name || 'N/A'}</p>
-              </div>
-              
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Location</h3>
-                <p className="mt-1 text-lg text-gray-900">{scrapedData.location || 'N/A'}</p>
-              </div>
-              
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Description</h3>
-                <div className="mt-1 p-4 bg-gray-50 rounded-md">
-                  <p className="text-gray-700 whitespace-pre-wrap">{scrapedData.job_description || 'N/A'}</p>
-                </div>
-              </div>
-              
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Requirements</h3>
-                <div className="mt-1 p-4 bg-gray-50 rounded-md">
-                  <p className="text-gray-700 whitespace-pre-wrap">{scrapedData.requirements || 'N/A'}</p>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Source URL</h3>
-                <a 
-                  href={scrapedData.url} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="mt-1 text-blue-600 hover:text-blue-800 break-words"
-                >
-                  {scrapedData.url}
-                </a>
-              </div>
-            </div>
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Generated Application Materials</h2>
+            {renderContent("Generated Resume", generatedContent.generated_resume_text)}
+            {renderContent("Generated Cover Letter", generatedContent.generated_cover_letter_text)}
+            {renderContent("Generated Email Template", generatedContent.generated_email_template)}
           </div>
         )}
       </div>

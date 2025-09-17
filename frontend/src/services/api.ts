@@ -4,6 +4,8 @@ import type { Education } from '../interfaces/Education';
 import type { Skill } from '../interfaces/Skill';
 import type { Project } from '../interfaces/Project';
 import type { UserProfile } from '../interfaces/UserProfile';
+import type { JobPosting } from '../interfaces/JobPosting';
+import type { ApplicationContent } from '../interfaces/ApplicationContent';
 
 const BASE_URL = 'http://localhost:8000/api';
 
@@ -107,7 +109,7 @@ export const getProfile = async (token: string): Promise<UserProfile> => {
  * @param url The LinkedIn job posting URL.
  * @returns A Promise that resolves with the scraped job data.
  */
-export const scrapeJob = async (token: string, url: string): Promise<any> => {
+export const scrapeJob = async (token: string, url: string): Promise<JobPosting> => {
   const response = await fetch(`${BASE_URL}/jobpostings/scrape`, {
     method: 'POST',
     headers: {
@@ -130,9 +132,9 @@ export const scrapeJob = async (token: string, url: string): Promise<any> => {
  * Triggers the backend to generate a tailored application.
  * @param token The access token for authentication.
  * @param jobPostingId The ID of the job posting to generate an application for.
- * @returns A Promise that resolves with a success message.
+ * @returns A Promise that resolves with the generated application content.
  */
-export const generateApplication = async (token: string, jobPostingId: number): Promise<string> => {
+export const generateApplication = async (token: string, jobPostingId: number): Promise<ApplicationContent> => {
     const response = await fetch(`${BASE_URL}/applications/generate?job_posting_id=${jobPostingId}`, {
         method: 'POST',
         headers: {
@@ -147,5 +149,5 @@ export const generateApplication = async (token: string, jobPostingId: number): 
     }
 
     const data = await response.json();
-    return data.message;
+    return data;
 };
