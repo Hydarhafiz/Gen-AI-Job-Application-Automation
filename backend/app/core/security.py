@@ -7,33 +7,67 @@ from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from .config import settings
+import google.generativeai as genai
+import json
+from ..logging_config import api_logger  # Import the logger
 
-# This function is a placeholder. You need to implement the actual logic
-# using a library like LangChain to interact with an LLM.
+# Configure the Gemini API with your key
+genai.configure(api_key=settings.GEMINI_API_KEY)
+
 def generate_resume_and_cover_letter(user_data: dict, job_data: dict) -> dict:
     """
-    Placeholder function to generate a tailored resume and cover letter.
+    Generates a tailored resume and cover letter using the Gemini API.
     """
-    # Use user_data and job_data to generate the content.
-    # The actual implementation would call an external AI model here.
     
-    # For now, we return dummy content to make the API work.
-    resume_text = (
-        f"This is a generated resume for {user_data.get('name', 'User')}, "
-        f"tailored for the '{job_data.get('job_title', 'Job')}' position "
-        f"at {job_data.get('company_name', 'Company')}."
-    )
-    
-    cover_letter_text = (
-        f"This is a generated cover letter for {user_data.get('name', 'User')}, "
-        f"applying for the '{job_data.get('job_title', 'Job')}' role "
-        f"at {job_data.get('company_name', 'Company')}."
-    )
-    
-    return {
-        "resume": resume_text,
-        "cover_letter": cover_letter_text
-    }
+    prompt = f"""
+    You are an expert career assistant. Your task is to generate a tailored resume, cover letter, and a simple email template for a job application. The output must be in JSON format with three keys: "resume", "cover_letter", and "generated_email_template".
+
+    The user's professional profile is:
+    <user_profile>
+    {json.dumps(user_data, indent=2)}
+    </user_profile>
+
+    The job posting details are:
+    <job_posting>
+    {json.dumps(job_data, indent=2)}
+    </job_posting>
+
+    Instructions:
+    - The resume should be a professional summary of the user's skills, experience, and education, tailored to match the keywords and requirements in the job description.
+    - The cover letter should be a formal, one-page document expressing the user's interest and highlighting why they are a good fit for the role based on their profile.
+    - The email template should be brief and professional, designed to be used when sending the resume and cover letter as attachments.
+
+    Return only the JSON object. Do not include any additional text, markdown, or code blocks outside of the JSON.
+    """
+
+    try:
+        model = genai.GenerativeModel('gemini-2.5-flash')
+        response = model.generate_content(prompt)
+
+        # Sanitize the output by removing markdown code block fences if present
+        # This makes the JSON parsing more robust.
+        if response.text.startswith("```json") and response.text.endswith("```"):
+            json_text = response.text[7:-3].strip()
+        else:
+            json_text = response.text.strip()
+            
+        generated_data = json.loads(json_text)
+
+        if "resume" not in generated_data or "cover_letter" not in generated_data:
+            raise ValueError("Gemini response did not contain the expected keys.")
+        
+        return generated_data
+
+    except Exception as e:
+        # Log the specific LLM API error with the traceback for better debugging
+        api_logger.error(
+            {
+                "message": "Application generation failed due to LLM error",
+                "error": str(e)
+            },
+            exc_info=True  # This is the key line that will print the full traceback
+        )
+        raise e  # Re-raise the exception to be caught by the outer try-except block
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")

@@ -12,7 +12,10 @@ class Settings(BaseSettings):
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
     POSTGRES_DB: str
-    DATABASE_URL: Optional[str] = None # Will be constructed later
+    DATABASE_URL: Optional[str] = None
+    
+    # New field for the Gemini API Key
+    GEMINI_API_KEY: str # Add this line
 
     class Config:
         env_file = ".env"
