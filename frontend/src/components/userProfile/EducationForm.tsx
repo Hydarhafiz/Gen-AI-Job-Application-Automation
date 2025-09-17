@@ -16,7 +16,8 @@ const EducationForm: React.FC<EducationFormProps> = ({ formData, setFormData }) 
   const addEducation = () => {
     setFormData([
       ...formData,
-      { institutionName: '', degree: '', fieldOfStudy: '', startDate: '', endDate: '' },
+      // Corrected property names to match the interface
+      { institution_name: '', degree: '', field_of_study: '', start_date: '', end_date: '' },
     ]);
   };
 
@@ -43,8 +44,8 @@ const EducationForm: React.FC<EducationFormProps> = ({ formData, setFormData }) 
               <label className="text-gray-600 font-medium mb-1">Institution Name</label>
               <input
                 type="text"
-                name="institutionName"
-                value={education.institutionName}
+                name="institution_name" // Corrected name
+                value={education.institution_name} // Corrected value
                 onChange={(e) => handleChange(e, index)}
                 placeholder="University of California, Berkeley"
                 className="p-3 border border-gray-300 rounded-lg"
@@ -65,8 +66,8 @@ const EducationForm: React.FC<EducationFormProps> = ({ formData, setFormData }) 
               <label className="text-gray-600 font-medium mb-1">Field of Study</label>
               <input
                 type="text"
-                name="fieldOfStudy"
-                value={education.fieldOfStudy}
+                name="field_of_study" // Corrected name
+                value={education.field_of_study} // Corrected value
                 onChange={(e) => handleChange(e, index)}
                 placeholder="Computer Science"
                 className="p-3 border border-gray-300 rounded-lg"
@@ -76,8 +77,8 @@ const EducationForm: React.FC<EducationFormProps> = ({ formData, setFormData }) 
               <label className="text-gray-600 font-medium mb-1">Start Date</label>
               <input
                 type="date"
-                name="startDate"
-                value={education.startDate}
+                name="start_date" // Corrected name
+                value={education.start_date} // Corrected value
                 onChange={(e) => handleChange(e, index)}
                 className="p-3 border border-gray-300 rounded-lg"
               />
@@ -86,8 +87,8 @@ const EducationForm: React.FC<EducationFormProps> = ({ formData, setFormData }) 
               <label className="text-gray-600 font-medium mb-1">End Date</label>
               <input
                 type="date"
-                name="endDate"
-                value={education.endDate}
+                name="end_date" // Corrected name
+                value={education.end_date || ''} // Handle null value
                 onChange={(e) => handleChange(e, index)}
                 className="p-3 border border-gray-300 rounded-lg"
               />

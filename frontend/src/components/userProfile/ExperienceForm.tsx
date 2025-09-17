@@ -19,12 +19,13 @@ const ExperienceForm: React.FC<ExperienceFormProps> = ({ formData, setFormData }
   const addExperience = () => {
     setFormData([
       ...formData,
+      // Corrected property names to match the interface
       {
-        companyName: '',
+        company_name: '',
         title: '',
-        startDate: '',
-        endDate: '',
-        isCurrent: false,
+        start_date: '',
+        end_date: null,
+        is_current: false,
         description: '',
       },
     ]);
@@ -53,8 +54,8 @@ const ExperienceForm: React.FC<ExperienceFormProps> = ({ formData, setFormData }
               <label className="text-gray-600 font-medium mb-1">Company Name</label>
               <input
                 type="text"
-                name="companyName"
-                value={experience.companyName}
+                name="company_name" // Corrected name
+                value={experience.company_name} // Corrected value
                 onChange={(e) => handleChange(e, index)}
                 placeholder="Google"
                 className="p-3 border border-gray-300 rounded-lg"
@@ -75,8 +76,8 @@ const ExperienceForm: React.FC<ExperienceFormProps> = ({ formData, setFormData }
               <label className="text-gray-600 font-medium mb-1">Start Date</label>
               <input
                 type="date"
-                name="startDate"
-                value={experience.startDate}
+                name="start_date" // Corrected name
+                value={experience.start_date} // Corrected value
                 onChange={(e) => handleChange(e, index)}
                 className="p-3 border border-gray-300 rounded-lg"
               />
@@ -85,10 +86,10 @@ const ExperienceForm: React.FC<ExperienceFormProps> = ({ formData, setFormData }
               <label className="text-gray-600 font-medium mb-1">End Date</label>
               <input
                 type="date"
-                name="endDate"
-                value={experience.endDate}
+                name="end_date" // Corrected name
+                value={experience.end_date || ''} // Handle null value
                 onChange={(e) => handleChange(e, index)}
-                disabled={experience.isCurrent}
+                disabled={experience.is_current} // Corrected name
                 className="p-3 border border-gray-300 rounded-lg disabled:bg-gray-200"
               />
             </div>
@@ -96,8 +97,8 @@ const ExperienceForm: React.FC<ExperienceFormProps> = ({ formData, setFormData }
               <input
                 type="checkbox"
                 id={`isCurrent-${index}`}
-                name="isCurrent"
-                checked={experience.isCurrent}
+                name="is_current" // Corrected name
+                checked={experience.is_current} // Corrected value
                 onChange={(e) => handleChange(e, index)}
                 className="mr-2"
               />

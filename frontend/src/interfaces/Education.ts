@@ -4,8 +4,8 @@ export interface Education {
   institution_name: string;
   degree: string;
   field_of_study: string;
-  start_date: string; // Use string to represent date, e.g., "YYYY-MM-DD"
-  end_date: string | null; // Use string or null to represent date
+  start_date: string; // Date strings
+  end_date: string | null; // Date strings or null
 }
 
 export interface EducationFormProps {

@@ -124,7 +124,7 @@ const PersonalInfoForm: React.FC<CustomPersonalInfoFormProps> = ({
             type="url"
             id="linkedin_url"
             name="linkedin_url"
-            value={formData.linkedin_url}
+            value={formData.linkedin_url || ''} // Fix 1: Provide a fallback empty string for null
             onChange={handleChange}
             placeholder="https://linkedin.com/in/johndoe"
             className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -138,7 +138,7 @@ const PersonalInfoForm: React.FC<CustomPersonalInfoFormProps> = ({
             type="url"
             id="personal_website_url"
             name="personal_website_url"
-            value={formData.personal_website_url}
+            value={formData.personal_website_url || ''} // Fix 2: Provide a fallback empty string for null
             onChange={handleChange}
             placeholder="https://johndoe.dev"
             className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -152,14 +152,14 @@ const PersonalInfoForm: React.FC<CustomPersonalInfoFormProps> = ({
         <textarea
           id="professional_summary"
           name="professional_summary"
-          value={formData.professional_summary}
+          value={formData.professional_summary || ''} // Fix 3: Provide a fallback empty string for null
           onChange={handleChange}
           placeholder="Brief summary of your professional background and career objectives..."
           rows={6}
           className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <p className="text-right text-sm text-gray-400 mt-1">
-          {formData.professional_summary.length}/500 characters
+          {formData.professional_summary?.length || 0}/500 characters // Fix 4: Use optional chaining to safely access .length
         </p>
       </div>
     </div>

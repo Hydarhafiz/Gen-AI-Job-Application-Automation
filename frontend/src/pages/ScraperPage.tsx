@@ -1,11 +1,9 @@
-// In frontend/src/pages/ScraperPage.tsx
-
 import React, { useState } from 'react';
 import { scrapeJob, generateApplication } from '../services/api';
-import type { JobPosting } from '../interfaces/JobPosting'; // You might need to create this interface
+import type { JobPosting } from '../interfaces/JobPosting';
 import type { ApplicationContent } from '../interfaces/ApplicationContent';
-
-import { ClipboardIcon } from '@heroicons/react/24/outline'; // Assumes you have @heroicons/react installed
+import Header from '../common/Header';
+import { ClipboardIcon } from '@heroicons/react/24/outline';
 
 const ScraperPage: React.FC = () => {
   const [url, setUrl] = useState('');
@@ -78,7 +76,8 @@ const ScraperPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
+      <Header /> {/* Add the header here */}
+      <div className="max-w-4xl mx-auto mt-8">
         <div className="text-center mb-10">
           <h1 className="text-4xl font-extrabold text-gray-900 mb-2">Generate Your Application</h1>
           <p className="text-gray-600 text-lg">

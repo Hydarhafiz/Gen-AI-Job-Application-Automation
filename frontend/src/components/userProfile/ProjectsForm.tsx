@@ -14,7 +14,11 @@ const ProjectsForm: React.FC<ProjectsFormProps> = ({ formData, setFormData }) =>
   };
 
   const addProject = () => {
-    setFormData([...formData, { name: '', description: '', githubUrl: '', liveUrl: '' }]);
+    setFormData([
+      ...formData,
+      // Corrected property names to match the interface
+      { name: '', description: '', github_url: '', live_url: '', start_date: '', end_date: '' },
+    ]);
   };
 
   const removeProject = (index: number) => {
@@ -51,8 +55,8 @@ const ProjectsForm: React.FC<ProjectsFormProps> = ({ formData, setFormData }) =>
               <label className="text-gray-600 font-medium mb-1">GitHub URL</label>
               <input
                 type="url"
-                name="githubUrl"
-                value={project.githubUrl}
+                name="github_url" // Corrected name
+                value={project.github_url || ''} // Handle null value
                 onChange={(e) => handleChange(e, index)}
                 placeholder="https://github.com/your-username/jaa-project"
                 className="p-3 border border-gray-300 rounded-lg"
@@ -62,10 +66,30 @@ const ProjectsForm: React.FC<ProjectsFormProps> = ({ formData, setFormData }) =>
               <label className="text-gray-600 font-medium mb-1">Live URL</label>
               <input
                 type="url"
-                name="liveUrl"
-                value={project.liveUrl}
+                name="live_url" // Corrected name
+                value={project.live_url || ''} // Handle null value
                 onChange={(e) => handleChange(e, index)}
                 placeholder="https://jaa.your-site.com"
+                className="p-3 border border-gray-300 rounded-lg"
+              />
+            </div>
+            <div className="flex flex-col">
+              <label className="text-gray-600 font-medium mb-1">Start Date</label>
+              <input
+                type="date"
+                name="start_date" // Corrected name
+                value={project.start_date || ''} // Handle null value
+                onChange={(e) => handleChange(e, index)}
+                className="p-3 border border-gray-300 rounded-lg"
+              />
+            </div>
+            <div className="flex flex-col">
+              <label className="text-gray-600 font-medium mb-1">End Date</label>
+              <input
+                type="date"
+                name="end_date" // Corrected name
+                value={project.end_date || ''} // Handle null value
+                onChange={(e) => handleChange(e, index)}
                 className="p-3 border border-gray-300 rounded-lg"
               />
             </div>
@@ -74,7 +98,7 @@ const ProjectsForm: React.FC<ProjectsFormProps> = ({ formData, setFormData }) =>
             <label className="text-gray-600 font-medium mb-1">Description</label>
             <textarea
               name="description"
-              value={project.description}
+              value={project.description || ''} // Handle null value
               onChange={(e) => handleChange(e, index)}
               placeholder="Describe what the project does, the technologies used, and your contributions..."
               rows={4}

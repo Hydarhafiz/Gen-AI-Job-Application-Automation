@@ -5,6 +5,7 @@ import ProfilePage from './pages/Profile';
 import UserForm from './components/userProfile/UserForm';
 import ScraperPage from './pages/ScraperPage';
 import LoginPage from './pages/Login';
+import ProfileViewPage from './pages/ProfileViewPage';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/profile/create" element={<UserForm />} />
         <Route path="/scraper" element={<ScraperPage />} />
+        <Route path="/profile/view" element={<ProfileViewPage />} />
       </Routes>
     </Router>
   );

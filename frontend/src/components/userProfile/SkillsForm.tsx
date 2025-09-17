@@ -52,7 +52,7 @@ const SkillsForm: React.FC<SkillsFormProps> = ({ formData, setFormData }) => {
               <input
                 type="text"
                 name="category"
-                value={skill.category}
+                value={skill.category || ''} // Handle null value
                 onChange={(e) => handleChange(e, index)}
                 placeholder="Frontend Frameworks"
                 className="p-3 border border-gray-300 rounded-lg"
