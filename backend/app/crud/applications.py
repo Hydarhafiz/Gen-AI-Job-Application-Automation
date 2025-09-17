@@ -17,3 +17,7 @@ def create_application(db: Session, application: schemas.ApplicationCreate):
 
 def get_application(db: Session, application_id: int):
     return db.query(models.Application).filter(models.Application.id == application_id).first()
+
+# 🆕 New function to get application by job posting ID
+def get_application_by_job_id(db: Session, job_posting_id: int):
+    return db.query(models.Application).filter(models.Application.job_posting_id == job_posting_id).first()

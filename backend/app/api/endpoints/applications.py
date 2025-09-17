@@ -123,3 +123,24 @@ def generate_application(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"An unexpected error occurred: {str(e)}"
         )
+
+@router.get("/{job_posting_id}", response_model=schemas.ApplicationInDB)
+def get_application_by_job_id(
+    job_posting_id: int,
+    db: Session = Depends(get_db),
+    current_user: UserModel = Depends(get_current_user)
+):
+    """
+    Retrieves a generated application for a specific job posting.
+    Ensures the application belongs to the authenticated user.
+    """
+    application = crud.applications.get_application_by_job_id(db, job_posting_id)
+    if not application:
+        api_logger.warning({"message": "Application not found for job_posting_id", "job_posting_id": job_posting_id})
+        raise HTTPException(status_code=404, detail="Application not found for this job posting.")
+    
+    if application.user_id != current_user.id:
+        api_logger.warning({"message": "User not authorized to access application", "application_id": application.id, "user_id": current_user.id})
+        raise HTTPException(status_code=403, detail="Not authorized to access this application.")
+        
+    return application

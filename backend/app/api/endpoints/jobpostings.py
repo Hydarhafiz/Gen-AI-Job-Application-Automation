@@ -56,3 +56,22 @@ async def scrape_job_posting(
     )
     
     return crud.jobpostings.create_job_posting(db=db, job_posting=job_posting)
+
+@router.get("/{job_posting_id}", response_model=schemas.JobPostingInDB)
+def get_job_posting_by_id(
+    job_posting_id: int,
+    db: Session = Depends(get_db),
+    current_user: UserModel = Depends(get_current_user)
+):
+    """Retrieve a single job posting by its ID for the authenticated user."""
+    db_job_posting = crud.jobpostings.get_job_posting(db, job_posting_id)
+    if not db_job_posting:
+        api_logger.warning({"message": "Job posting not found", "job_posting_id": job_posting_id})
+        raise HTTPException(status_code=404, detail="Job posting not found")
+    
+    # Ensure the job posting belongs to the current user for security
+    if db_job_posting.user_id != current_user.id:
+        api_logger.warning({"message": "User not authorized to access job posting", "job_posting_id": job_posting_id, "user_id": current_user.id})
+        raise HTTPException(status_code=403, detail="Not authorized to access this job posting")
+    
+    return db_job_posting

@@ -103,6 +103,42 @@ export const getProfile = async (token: string): Promise<UserProfile> => {
     return response.json();
 };
 
+export const getJobPosting = async (token: string, jobPostingId: string): Promise<JobPosting> => {
+    const response = await fetch(`${BASE_URL}/jobpostings/${jobPostingId}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+    });
+  
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to fetch job posting.');
+    }
+  
+    const data = await response.json();
+    return data;
+};
+
+export const getApplication = async (token: string, jobPostingId: number): Promise<ApplicationContent> => {
+    const response = await fetch(`${BASE_URL}/applications/${jobPostingId}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to fetch application data.');
+    }
+
+    const data = await response.json();
+    return data;
+};
+
 /**
  * Scrapes a job posting from a LinkedIn URL.
  * @param token The access token for authentication.
