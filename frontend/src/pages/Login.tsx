@@ -1,19 +1,15 @@
-// In frontend/src/pages/Login.tsx
-
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRightToBracket } from '@fortawesome/free-solid-svg-icons';
 import { loginUser } from '../services/api';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
-interface LoginPageProps {
-  onSuccessfulLogin: () => void;
-}
-
-const LoginPage: React.FC<LoginPageProps> = ({ onSuccessfulLogin }) => {
+const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate(); // Get the navigate function
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,14 +17,11 @@ const LoginPage: React.FC<LoginPageProps> = ({ onSuccessfulLogin }) => {
     setError('');
 
     try {
-      // Call the API function to handle login
       const token = await loginUser(email, password);
       console.log('Login successful. Access token:', token);
       
-      // Store the token (e.g., in localStorage or a state management solution)
       localStorage.setItem('access_token', token);
-
-      onSuccessfulLogin(); // Navigate to the next page
+      navigate('/scraper'); // Navigate to the scraper page after login
     } catch (err) {
       setError('Invalid email or password. Please try again.');
       console.error('Login failed:', err);

@@ -14,12 +14,10 @@ import type { Skill } from '../../interfaces/Skill.ts';
 import type { Project } from '../../interfaces/Project.ts';
 import type { PersonalInfo } from '../../interfaces/PersonalInfo.ts';
 import { submitProfileData } from '../../services/api.ts';
+import { useNavigate } from 'react-router-dom';
 
-interface UserFormProps {
-  onSuccess: () => void;
-}
-
-const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
+const UserForm: React.FC = () => {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<{
     personalInfo: PersonalInfo;
@@ -31,7 +29,7 @@ const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
     personalInfo: {
       name: '',
       email: '',
-      password: '', // Initialize password
+      password: '',
       phone_number: '',
       location: '',
       linkedin_url: '',
@@ -56,7 +54,6 @@ const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
   ];
 
   const handleNext = () => {
-    // Only validate password on the Personal Info step
     if (currentStep === 0) {
       if (formData.personalInfo.password !== confirmPassword) {
         setValidationError('Passwords do not match.');
@@ -92,7 +89,7 @@ const UserForm: React.FC<UserFormProps> = ({ onSuccess }) => {
         formData.projects
       );
       alert('Profile created successfully!');
-      onSuccess(); // Call the callback to navigate back to the home page
+      navigate('/'); // Navigate back to the home page on success
     } catch (error) {
       console.error('Error submitting profile:', error);
       alert('An error occurred. Please try again.');

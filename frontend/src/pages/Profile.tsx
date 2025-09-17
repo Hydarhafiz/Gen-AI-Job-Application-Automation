@@ -1,20 +1,23 @@
-// In frontend/src/pages/Profile.tsx
 import React from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faFileUpload, faKeyboard } from '@fortawesome/free-solid-svg-icons';
 
-interface ProfilePageProps {
-  onBackClick: () => void;
-  onStartManualCreation: () => void; // New prop
+const ProfilePage: React.FC = () => {
+  const navigate = useNavigate();
 
-}
+  const handleBackClick = () => {
+    navigate(-1); // Go back to the previous page in history
+  };
 
-const ProfilePage: React.FC<ProfilePageProps> = ({ onBackClick, onStartManualCreation }) => {
+  const handleStartManualCreation = () => {
+    navigate('/profile/create'); // Navigate to the user form page
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
       <div className="flex flex-col items-center mb-8">
         <div className="text-4xl text-blue-600 mb-2">
-          {/* JAA logo placeholder */}
           <FontAwesomeIcon icon={faKeyboard} />
         </div>
         <h1 className="text-4xl font-bold text-gray-800">JAA</h1>
@@ -25,7 +28,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBackClick, onStartManualCre
 
       <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-xl relative">
         <button
-          onClick={onBackClick}
+          onClick={handleBackClick}
           className="absolute top-4 left-4 text-gray-500 hover:text-gray-700 transition-colors"
         >
           <FontAwesomeIcon icon={faArrowLeft} size="lg" />
@@ -57,7 +60,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onBackClick, onStartManualCre
               Enter your details step-by-step
             </p>
             <button
-              onClick={onStartManualCreation}
+              onClick={handleStartManualCreation}
               className="mt-4 w-full md:w-auto px-6 py-3 bg-green-600 text-white rounded-lg shadow-md hover:bg-green-700 transition-colors"
             >
               <FontAwesomeIcon icon={faKeyboard} className="mr-2" />
