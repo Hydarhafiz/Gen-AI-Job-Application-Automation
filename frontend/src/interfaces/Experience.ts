@@ -1,9 +1,11 @@
+// In frontend/src/interfaces/Experience.ts
+
 export interface Experience {
-  companyName: string;
+  company_name: string;
   title: string;
-  startDate: string;
-  endDate: string;
-  isCurrent: boolean;
+  start_date: string;
+  end_date: string | null;
+  is_current: boolean;
   description: string;
 }
 

@@ -3,12 +3,12 @@
 export interface PersonalInfo {
   name: string;
   email: string;
-  password?: string; // Add this line, making it optional since we might not need it for future updates
+  password?: string;
   phone_number: string;
   location: string;
-  linkedin_url: string;
-  personal_website_url: string;
-  professional_summary: string;
+  linkedin_url: string | null; // Changed to match backend model
+  personal_website_url: string | null; // Changed to match backend model
+  professional_summary: string | null; // Changed to match backend model
 }
 
 export interface PersonalInfoFormProps {

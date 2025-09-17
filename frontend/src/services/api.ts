@@ -1,10 +1,9 @@
-// In frontend/src/services/apiService.ts
-
 import type { PersonalInfo } from '../interfaces/PersonalInfo';
 import type { Experience } from '../interfaces/Experience';
 import type { Education } from '../interfaces/Education';
 import type { Skill } from '../interfaces/Skill';
 import type { Project } from '../interfaces/Project';
+import type { UserProfile } from '../interfaces/UserProfile';
 
 const BASE_URL = 'http://localhost:8000/api';
 
@@ -28,7 +27,6 @@ export const submitProfileData = async (
       projects,
     };
 
-    // Correctly send data to the signup endpoint
     const userResponse = await fetch(`${BASE_URL}/auth/signup`, {
       method: 'POST',
       headers: {
@@ -82,18 +80,41 @@ export const loginUser = async (email: string, password: string): Promise<string
 };
 
 /**
+ * Retrieves the full user profile for the authenticated user.
+ * @param token The access token for authentication.
+ * @returns A Promise that resolves with the user's profile data.
+ */
+export const getProfile = async (token: string): Promise<UserProfile> => {
+    const response = await fetch(`${BASE_URL}/users/profile`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to fetch user profile.');
+    }
+    
+    return response.json();
+};
+
+/**
  * Scrapes a job posting from a LinkedIn URL.
- * @param userId The ID of the current user.
+ * @param token The access token for authentication.
  * @param url The LinkedIn job posting URL.
  * @returns A Promise that resolves with the scraped job data.
  */
-export const scrapeJob = async (userId: string, url: string): Promise<any> => {
+export const scrapeJob = async (token: string, url: string): Promise<any> => {
   const response = await fetch(`${BASE_URL}/jobpostings/scrape`, {
     method: 'POST',
     headers: {
+      'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ user_id: userId, url }),
+    body: JSON.stringify({ url }),
   });
 
   if (!response.ok) {
@@ -103,4 +124,28 @@ export const scrapeJob = async (userId: string, url: string): Promise<any> => {
 
   const data = await response.json();
   return data;
+};
+
+/**
+ * Triggers the backend to generate a tailored application.
+ * @param token The access token for authentication.
+ * @param jobPostingId The ID of the job posting to generate an application for.
+ * @returns A Promise that resolves with a success message.
+ */
+export const generateApplication = async (token: string, jobPostingId: number): Promise<string> => {
+    const response = await fetch(`${BASE_URL}/applications/generate?job_posting_id=${jobPostingId}`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Application generation failed.');
+    }
+
+    const data = await response.json();
+    return data.message;
 };
