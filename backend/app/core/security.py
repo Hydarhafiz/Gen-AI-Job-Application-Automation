@@ -2,19 +2,35 @@
 
 from datetime import datetime, timedelta
 from typing import Optional
+import uuid
 from jose import jwt, JWTError
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+from pydantic import HttpUrl
 from .config import settings
 import google.generativeai as genai
+from datetime import datetime, date
+from typing import Optional
 import json
-from ..logging_config import api_logger  # Import the logger
+from ..logging_config import api_logger
 
 # Configure the Gemini API with your key
 genai.configure(api_key=settings.GEMINI_API_KEY)
 
 def generate_resume_and_cover_letter(user_data: dict, job_data: dict) -> dict:
+    
+    # Define a custom default handler for json.dumps
+    def custom_json_serializer(obj):
+        if isinstance(obj, date):
+            return obj.isoformat()
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        if isinstance(obj, (uuid.UUID, HttpUrl)):
+            return str(obj)
+        raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
+    
+    
     """
     Generates a tailored resume and cover letter using the Gemini API.
     """
@@ -24,12 +40,12 @@ def generate_resume_and_cover_letter(user_data: dict, job_data: dict) -> dict:
 
     The user's professional profile is:
     <user_profile>
-    {json.dumps(user_data, indent=2)}
+    {json.dumps(user_data, indent=2, default=custom_json_serializer)}
     </user_profile>
 
     The job posting details are:
     <job_posting>
-    {json.dumps(job_data, indent=2)}
+    {json.dumps(job_data, indent=2, default=custom_json_serializer)}
     </job_posting>
 
     Instructions:
@@ -65,9 +81,9 @@ def generate_resume_and_cover_letter(user_data: dict, job_data: dict) -> dict:
                 "message": "Application generation failed due to LLM error",
                 "error": str(e)
             },
-            exc_info=True  # This is the key line that will print the full traceback
+            exc_info=True
         )
-        raise e  # Re-raise the exception to be caught by the outer try-except block
+        raise e
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
