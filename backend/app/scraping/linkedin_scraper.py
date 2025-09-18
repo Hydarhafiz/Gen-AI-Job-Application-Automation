@@ -1,4 +1,6 @@
 # In backend/app/scraping/linkedin_scraper.py
+
+import markdownify
 from playwright.async_api import async_playwright
 from bs4 import BeautifulSoup
 import asyncio
@@ -9,10 +11,9 @@ logger = logging.getLogger(__name__)
 
 class LinkedInScraper:
     def __init__(self):
-        self.timeout = 60000 # Increase timeout to 60 seconds
+        self.timeout = 60000
 
     async def scrape_job_posting(self, url: str) -> Optional[Dict]:
-        """Scrape LinkedIn job posting details"""
         if "jobs/search" in url:
             logger.error("Please provide a direct link to a job posting, not a search results page")
             return None
@@ -53,28 +54,18 @@ class LinkedInScraper:
                 logger.info(f"Navigating to URL: {url}")
                 await page.goto(url, timeout=self.timeout, wait_until='domcontentloaded')
                 
+                # Wait for the "Show more" button to appear and click it if it exists.
+                # This ensures you get the full job description.
+                show_more_button = await page.query_selector("button.show-more-less-html__button")
+                if show_more_button:
+                    await show_more_button.click()
+                    await page.wait_for_timeout(1000) # Give it a moment to expand
+                
                 await page.wait_for_selector('h1, [data-test-job-details-title]', timeout=self.timeout)
-                
-                description_selectors = [
-                    '.jobs-description__content',
-                    '.description__text',
-                    '[data-test-job-details-description]',
-                    '.jobs-box__html-content',
-                    '.show-more-less-html__markup'
-                ]
-                
-                description_found = False
-                for selector in description_selectors:
-                    if await page.query_selector(selector):
-                        description_found = True
-                        break
-                
-                if not description_found:
-                    logger.warning("No description selector found, trying to extract from page content")
                 
                 content = await page.content()
                 soup = BeautifulSoup(content, 'html.parser')
-                
+
                 job_data = {
                     'title': self._extract_title(soup),
                     'company': self._extract_company(soup),
@@ -98,12 +89,11 @@ class LinkedInScraper:
                     }
                     await browser.close()
                     return job_data
-                except:
+                except Exception:
                     await browser.close()
                     return None
 
     def _extract_title(self, soup: BeautifulSoup) -> str:
-        # Try multiple selectors for job title
         selectors = [
             'h1',
             '[data-test-job-details-title]',
@@ -115,11 +105,10 @@ class LinkedInScraper:
         for selector in selectors:
             elem = soup.select_one(selector)
             if elem:
-                return elem.get_text().strip()
+                return elem.get_text(strip=True)
         return ""
 
     def _extract_company(self, soup: BeautifulSoup) -> str:
-        # Try multiple selectors for company name
         selectors = [
             '[data-test-job-details-company]',
             '.employer-name',
@@ -131,11 +120,10 @@ class LinkedInScraper:
         for selector in selectors:
             elem = soup.select_one(selector)
             if elem:
-                return elem.get_text().strip()
+                return elem.get_text(strip=True)
         return ""
 
     def _extract_location(self, soup: BeautifulSoup) -> str:
-        # Try multiple selectors for location
         selectors = [
             '[data-test-job-details-location]',
             '.location',
@@ -147,11 +135,10 @@ class LinkedInScraper:
         for selector in selectors:
             elem = soup.select_one(selector)
             if elem:
-                return elem.get_text().strip()
+                return elem.get_text(strip=True)
         return ""
 
     def _extract_description(self, soup: BeautifulSoup) -> str:
-        # Try multiple selectors for job description
         selectors = [
             '.jobs-description__content',
             '.description__text',
@@ -163,5 +150,14 @@ class LinkedInScraper:
         for selector in selectors:
             elem = soup.select_one(selector)
             if elem:
-                return elem.get_text().strip()
+                # Get the inner HTML content of the description element
+                html_content = str(elem)
+                # Convert HTML to Markdown to preserve formatting
+                # The 'strip_tags' parameter is useful for removing unwanted elements like the 'Show less' button.
+                # However, it's often easier to first click the button in Playwright, and then just process the final content.
+                markdown_text = markdownify.markdownify(html_content, heading_style="ATX", strong_em_symbol="**")
+                # Clean up any leftover text like "Show more" or "Show less"
+                # This handles cases where the button text is outside the main content block
+                markdown_text = markdown_text.replace('Show more', '').replace('Show less', '').strip()
+                return markdown_text
         return ""

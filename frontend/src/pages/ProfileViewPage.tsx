@@ -153,6 +153,10 @@ const ProfileViewPage: React.FC = () => {
                 <a href={job.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm block mb-4">
                   View Job Posting
                 </a>
+
+                <p className="text-gray-700 mt-2">
+                  <strong>Job Description:</strong> {job.job_description?.substring(0, 300) || 'No description available.'}...
+                </p>
                 
                 {/* Button to navigate to details page */}
                 <Link to={`/jobs/${job.id}`}>

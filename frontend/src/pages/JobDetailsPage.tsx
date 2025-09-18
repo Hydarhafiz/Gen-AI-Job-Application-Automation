@@ -102,6 +102,9 @@ const JobDetailsPage: React.FC = () => {
           >
             View original job posting
           </a>
+
+          <h3 className="text-xl font-semibold text-gray-700 mb-2 mt-4">Job Description</h3>
+          <p className="whitespace-pre-wrap text-gray-700 mb-6">{job.job_description}</p>
           
           <h3 className="text-2xl font-bold text-gray-900 mb-4">Generated Documents</h3>
           
