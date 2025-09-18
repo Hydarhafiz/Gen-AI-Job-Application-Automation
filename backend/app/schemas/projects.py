@@ -9,6 +9,12 @@ class ProjectBase(BaseModel):
     description: Optional[str] = None
     github_url: Optional[HttpUrl] = None
     live_url: Optional[HttpUrl] = None
+    
+class ProjectCreate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    github_url: Optional[HttpUrl] = None
+    live_url: Optional[HttpUrl] = None
 
 class ProjectInDB(ProjectBase):
     id: int

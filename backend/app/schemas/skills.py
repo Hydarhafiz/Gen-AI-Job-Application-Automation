@@ -7,6 +7,10 @@ class SkillBase(BaseModel):
     user_id: uuid.UUID
     name: Optional[str] = None
     category: Optional[str] = None
+    
+class SkillCreate(BaseModel):
+    name: Optional[str] = None
+    category: Optional[str] = None
 
 class SkillInDB(SkillBase):
     id: int

@@ -21,7 +21,7 @@ const ExperienceForm: React.FC<ExperienceFormProps> = ({ formData, setFormData }
       ...formData,
       // Corrected property names to match the interface
       {
-        company_name: '',
+        company_name: '',
         title: '',
         start_date: '',
         end_date: null,

@@ -17,7 +17,7 @@ const EducationForm: React.FC<EducationFormProps> = ({ formData, setFormData }) 
     setFormData([
       ...formData,
       // Corrected property names to match the interface
-      { institution_name: '', degree: '', field_of_study: '', start_date: '', end_date: '' },
+      { institution_name: '', degree: '', field_of_study: '', start_date: '', end_date: '' }, // ⬅️ Corrected property name
     ]);
   };
 

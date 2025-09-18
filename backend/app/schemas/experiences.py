@@ -12,6 +12,14 @@ class ExperienceBase(BaseModel):
     end_date: Optional[date] = None
     is_current: Optional[bool] = None
     description: Optional[str] = None
+    
+class ExperienceCreate(BaseModel):
+    company_name: Optional[str] = None
+    title: Optional[str] = None
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
+    is_current: Optional[bool] = None
+    description: Optional[str] = None
 
 class ExperienceInDB(ExperienceBase):
     id: int
