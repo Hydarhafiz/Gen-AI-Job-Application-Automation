@@ -10,7 +10,7 @@ import SkillsForm from './SkillsForm.tsx';
 import ProjectsForm from './ProjectsForm.tsx';
 import type { Experience } from '../../interfaces/Experience.ts';
 import type { Education } from '../../interfaces/Education.ts';
-import type { Skill } from '../../interfaces/Skill.ts';
+import type { GroupedSkillsFormData } from '../../interfaces/Skill.ts';
 import type { Project } from '../../interfaces/Project.ts';
 import type { PersonalInfo } from '../../interfaces/PersonalInfo.ts';
 import { submitProfileData } from '../../services/api.ts';
@@ -23,7 +23,7 @@ const UserForm: React.FC = () => {
     personalInfo: PersonalInfo;
     experience: Experience[];
     education: Education[];
-    skills: Skill[];
+    skills: GroupedSkillsFormData; // ⬅️ UPDATED STATE TYPE
     projects: Project[];
   }>({
     personalInfo: {
@@ -38,7 +38,7 @@ const UserForm: React.FC = () => {
     },
     experience: [],
     education: [],
-    skills: [],
+    skills: {}, // ⬅️ INITIALIZED AS AN EMPTY OBJECT
     projects: [],
   });
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -81,15 +81,20 @@ const UserForm: React.FC = () => {
     setLoading(true);
 
     try {
+      // ⚠️ IMPORTANT: Convert the grouped skills back to a flat array for the backend.
+      const flattenedSkills = Object.entries(formData.skills).flatMap(([category, skillNames]) => 
+        skillNames.map(name => ({ name, category }))
+      );
+
       await submitProfileData(
         formData.personalInfo,
         formData.experience,
         formData.education,
-        formData.skills,
+        flattenedSkills, // ⬅️ SEND THE FLATTENED ARRAY
         formData.projects
       );
       alert('Profile created successfully!');
-      navigate('/'); // Navigate back to the home page on success
+      navigate('/');
     } catch (error) {
       console.error('Error submitting profile:', error);
       alert('An error occurred. Please try again.');
