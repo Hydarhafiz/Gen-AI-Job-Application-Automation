@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # The PostgreSQL database service
+  db:
+    image: postgres:15-alpine
+    container_name: jaa-postgres-db
+    restart: always
+    env_file:
+      - ./.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  db-creator:
+    build: ./backend
+    container_name: jaa-db-creator
+    command: python -m app.db.create_tables
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - ./.env
+    restart: "no"
+
+  # The FastAPI backend service
+  web:
+    build: ./backend
+    container_name: jaa-backend-api
+    command: uvicorn app.main:app --host 0.0.0.0 --reload
+    volumes:
+      - ./backend:/app
+      - ./logs:/app/logs # Add this line to persist logs
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./.env
+    depends_on:
+      - db-creator
+
+  # The React frontend service
+  frontend:
+    build: ./frontend
+    container_name: jaa-frontend
+    command: npm run dev -- --host
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "5173:5173"
+    depends_on:
+      - web
+
+volumes:
+  postgres_data:

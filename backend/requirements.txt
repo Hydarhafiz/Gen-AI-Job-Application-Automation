@@ -1,0 +1,22 @@
+# In backend/requirements.txt
+
+fastapi[standard]
+uvicorn
+# SQLAlchemy is the ORM
+sqlalchemy
+# psycopg2 is the PostgreSQL database driver
+psycopg2-binary
+# Web scraping libraries - pin to match Docker image
+playwright==1.55.0
+beautifulsoup4
+markdownify
+# Environment variables management
+python-dotenv
+# LLM integration (you'll need this later)
+openai
+google-generativeai # Add this line
+python-json-logger
+# New dependencies for authentication
+python-jose[cryptography]
+passlib[bcrypt]
+pydantic-settings
